@@ -62,7 +62,7 @@ class element extends \tool_certificate\element {
      * @return array
      */
     protected static function get_certification_fields(): array {
-        return [
+        $fields = [
             'fullname' => get_string('certificationname', 'tool_certify'),
             'idnumber' => get_string('certificationidnumber', 'tool_certify'),
             'url' => get_string('certificationurl', 'tool_certify'),
@@ -70,6 +70,13 @@ class element extends \tool_certificate\element {
             'timefrom' => get_string('fromdate', 'tool_certify'),
             'timeuntil' => get_string('untildate', 'tool_certify'),
         ];
+        $handler = \tool_certify\customfield\fields_handler::create();
+        $customfields = $handler->get_fields();
+        foreach ($customfields as $customfield) {
+            $fields[$customfield->get('shortname')] = $customfield->get('name');
+        }
+        return $fields;
+
     }
 
     /**
@@ -150,8 +157,19 @@ class element extends \tool_certificate\element {
                 } else {
                     $value = get_string('notset', 'tool_certify');
                 }
+            } else {
+                if (isset($data->certificationid)) {
+                    $handler = \tool_certify\customfield\fields_handler::create();
+                    $customfielddata = $handler->get_instance_data($data->certificationid);
+                    $customfields = [];
+                    foreach ($customfielddata as $data) {
+                        $customfields[$data->get_field()->get('shortname')] = $data->export_value();
+                    }
+                    if (!empty($customfields[$field])) {
+                        $value = $customfields[$field];
+                    }
+                }
             }
-        }
 
         \tool_certificate\element_helper::render_content($pdf, $this, $value);
     }
