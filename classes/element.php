@@ -170,7 +170,6 @@ class element extends \tool_certificate\element {
                     }
                 }
             }
-        }
 
         \tool_certificate\element_helper::render_content($pdf, $this, $value);
     }
