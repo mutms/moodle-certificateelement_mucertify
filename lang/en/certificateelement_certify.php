@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['dateformat'] = 'Date format';
+$string['dateformat_help'] = 'This is the format of the date that will be displayed';
 $string['pluginname'] = 'Certification field';
 $string['privacy:metadata'] = 'The certification fields plugin does not store any personal data.';
 $string['certificationfield'] = 'Certification field';

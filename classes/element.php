@@ -25,43 +25,12 @@ namespace certificateelement_certify;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class element extends \tool_certificate\element {
-
-    /**
-     * @var string $dateformat dateformat for date field.
-     */
-    private $dateformat;
-
-    /**
-     * This function renders the form elements when adding a certificate element.
-     *
-     * @param \MoodleQuickForm $mform the edit_form instance
-     */
-    public function render_form_elements($mform) {
-
-        // Get the certification fields.
-        $fields = self::get_certification_fields();
-
-        // Create the select box where the user field is selected.
-        $mform->addElement('select', 'certificationfield', get_string('certificationfield', 'certificateelement_certify'), $fields);
-        $mform->setType('certificationfield', PARAM_ALPHANUM);
-        $mform->addHelpButton('certificationfield', 'certificationfield', 'certificateelement_certify');
-
-        $mform->addElement('select', 'dateformat', get_string('dateformat', 'certificateelement_date'),
-            \certificateelement_date\element::get_date_formats());
-        $mform->addHelpButton('dateformat', 'dateformat', 'certificateelement_date');
-
-        $nondates = ['fullname', 'idnumber', 'url'];
-        $mform->hideIf('dateformat', 'certificationfield', 'in', $nondates);
-
-        parent::render_form_elements($mform);
-    }
-
     /**
      * Returns list of available certification fields.
      *
      * @return array
      */
-    protected static function get_certification_fields(): array {
+    public static function get_certification_fields(): array {
         return [
             'fullname' => get_string('certificationname', 'tool_certify'),
             'idnumber' => get_string('certificationidnumber', 'tool_certify'),
@@ -73,17 +42,212 @@ class element extends \tool_certificate\element {
     }
 
     /**
+     * Returns fields that have date format.
+     * @return string[]
+     */
+    public static function get_date_fields(): array {
+        return ['timecertified', 'timefrom', 'timeuntil'];
+    }
+
+    /**
+     * Helper function to return all the date and time formats.
+     *
+     * @return array the list of date format string names with examples
+     */
+    public static function get_date_formats(): array {
+        // Hard-code date so users can see the difference between short dates with and without the leading zero.
+        // Eg. 06/07/18 vs 6/07/18.
+        $date = 1530849658;
+
+        $strdateformats = [
+            'strftimedate',
+            'strftimedatefullshort',
+            'strftimedatefullshortwleadingzero',
+            'strftimedateshort',
+            'strftimedaydate',
+            'strftimedayshort',
+            'strftimemonthyear',
+            // On sites with timezones the actual time may be also important.
+            'strftimedatetime',
+            'strftimedatemonthtimeshort',
+            'strftimedaydatetime',
+            'strftimedatetimeshort',
+        ];
+
+        $dateformats = [];
+        foreach ($strdateformats as $strdateformat) {
+            $dateformats[$strdateformat] = self::format_date($date, $strdateformat);
+        }
+
+        return $dateformats;
+    }
+
+    /**
+     * Returns the date in a selected readable format.
+     *
+     * @param int|null $timestamp
+     * @param string $dateformat
+     * @return string
+     */
+    public static function format_date(?int $timestamp, string $dateformat): string {
+        if ($timestamp <= 0) {
+            return '';
+        }
+        if (strpos($dateformat, 'wleadingzero') !== false) {
+            $dateformat = str_replace('wleadingzero', '', $dateformat);
+            return userdate($timestamp, get_string($dateformat, 'langconfig'), 99, false);
+        } else {
+            return userdate($timestamp, get_string($dateformat, 'langconfig'));
+        }
+    }
+
+    /**
+     * Decode database field tool_certificate_elements.data value.
+     *
+     * @param string|null $data
+     * @return \stdClass
+     */
+    public static function decode_certificationfield_data(?string $data): \stdClass {
+        if ($data === null || $data === '') {
+            $fd = (object)['certificationfield' => null];
+
+        } else if (substr($data, 0, 1) !== '{') {
+            // Original field value is certification field.
+            $fd = (object)['certificationfield' => $data];
+
+        } else {
+            $fd = json_decode($data);
+            if (!is_object($fd)) {
+                $fd = (object)['certificationfield' => null];
+            } else if (isset($fd->dateitem)) {
+                // Problematic optional json.
+                $fd = (object)['certificationfield' => $fd->dateitem, 'dateformat' => $fd->dateformat];
+            } else {
+                if (empty($fd->certificationfield)) {
+                    // Error indication.
+                    $fd = (object)['certificationfield' => null];
+                }
+            }
+        }
+
+        $datefields = self::get_date_fields();
+        if (in_array($fd->certificationfield, $datefields, true)) {
+            if (empty($fd->dateformat)) {
+                // Use default - first value from self::get_date_formats().
+                $fd->dateformat = 'strftimedate';
+            }
+        }
+
+        return $fd;
+    }
+
+    /**
+     * Returns certification field info.
+     * @return \stdClass
+     */
+    public function get_certificationfield(): \stdClass {
+        $data = $this->get_data();
+        return self::decode_certificationfield_data($data);
+    }
+
+    /**
+     * Prepare data to pass to moodleform::set_data()
+     *
+     * @return \stdClass|array
+     */
+    public function prepare_data_for_form() {
+        $record = parent::prepare_data_for_form();
+        $pf = $this->get_certificationfield();
+        $record->certificationfield = $pf->certificationfield;
+        if (isset($pf->dateformat)) {
+            $record->dateformat = $pf->dateformat;
+        }
+        return $record;
+    }
+
+    /**
+     * This function renders the form elements when adding a certificate element.
+     *
+     * @param \MoodleQuickForm $mform the edit_form instance
+     */
+    public function render_form_elements($mform) {
+
+        // Get the certification fields.
+        $fields = self::get_certification_fields();
+        $dateformats = self::get_date_formats();
+
+        // Create the select box where the user field is selected.
+        $mform->addElement('select', 'certificationfield', get_string('certificationfield', 'certificateelement_certify'), $fields);
+        $mform->addHelpButton('certificationfield', 'certificationfield', 'certificateelement_certify');
+
+        $mform->addElement('select', 'dateformat', get_string('dateformat', 'certificateelement_certify'), $dateformats);
+        $mform->addHelpButton('dateformat', 'dateformat', 'certificateelement_certify');
+
+        $nondates = $fields;
+        foreach (self::get_date_fields() as $field) {
+            unset($nondates[$field]);
+        }
+        $mform->hideIf('dateformat', 'certificationfield', 'in', array_keys($nondates));
+
+        parent::render_form_elements($mform);
+    }
+
+    /**
      * Handles saving the form elements created by this element.
      * Can be overridden if more functionality is needed.
      *
      * @param \stdClass $data the form data or partial data to be updated
      */
     public function save_form_data(\stdClass $data) {
-        $data->data = $data->certificationfield;
-        if (isset($data->dateformat)) {
-            $data->data = json_encode(['dateitem' => $data->certificationfield, 'dateformat' => $data->dateformat]);
+        // Encode database field tool_certificate_elements.data value.
+        $fd = new \stdClass();
+        $fd->certificationfield = $data->certificationfield;
+        $datefields = self::get_date_fields();
+        if (in_array($fd->certificationfield, $datefields, true)) {
+            $fd->dateformat = $data->dateformat;
         }
+        unset($data->certificationfield);
+        unset($data->dateformat);
+
+        $data->data = json_encode($fd);
         parent::save_form_data($data);
+    }
+
+    /**
+     * Get preview text for this field.
+     *
+     * @return string
+     */
+    protected function get_preview(): string {
+        $pf = $this->get_certificationfield();
+        if ($pf->certificationfield === 'fullname') {
+            $value = 'Certification 001';
+        } else if ($pf->certificationfield === 'idnumber') {
+            $value = 'C001';
+        } else if ($pf->certificationfield === 'url') {
+            $url = new \moodle_url('/admin/tool/certify/catalogue/certification', ['id' => 1]);
+            $value = \html_writer::link($url, $url->out(false));
+        } else if ($pf->certificationfield === 'timecertified') {
+            $value = $this->format_date(time(), $pf->dateformat);
+        } else if ($pf->certificationfield === 'timefrom') {
+            $value = $this->format_date(time()  - WEEKSECS, $pf->dateformat);
+        } else if ($pf->certificationfield === 'timeuntil') {
+            $value = $this->format_date(time() + YEARSECS, $pf->dateformat);
+        } else {
+            $value = get_string('error');
+        }
+        return $value;
+    }
+
+    /**
+     * Render the element in html.
+     *
+     * This function is used to render the element when we are using the
+     * drag and drop interface to position it.
+     */
+    public function render_html() {
+        $value = $this->get_preview();
+        return \tool_certificate\element_helper::render_html_content($this, $value);
     }
 
     /**
@@ -95,136 +259,46 @@ class element extends \tool_certificate\element {
      * @param \stdClass $issue the issue we are rendering
      */
     public function render($pdf, $preview, $user, $issue) {
-        $field = $this->get_data();
-
-        $field = self::prepare_datefield($field);
         if ($preview) {
-            if ($field === 'fullname') {
-                $value = 'Certification 001';
-                $value = format_string($value, true, ['context' => \context_system::instance()]);
-            } else if ($field === 'idnumber') {
-                $value = 'P001';
-                $value = s($value);
-            } else if ($field === 'url') {
-                $url = new \moodle_url('/admin/tool/certify/catalogue/certification', ['id' => 1]);
-                $value = \html_writer::link($url, $url->out(false));
-            } else if ($field === 'timecertified') {
-                $value = $this->get_date_format_string(time(), $this->dateformat);
-            } else if ($field === 'timefrom') {
-                $value = $this->get_date_format_string(time() - WEEKSECS, $this->dateformat);
-            } else if ($field === 'timeuntil') {
-                $value = $this->get_date_format_string(time() + YEARSECS, $this->dateformat);
-            } else {
-                $value = $field;
-                $value = s($value);
-            }
+            $value = $this->get_preview();
         } else {
+            $pf = $this->get_certificationfield();
             $data = (object)json_decode($issue->data);
             $value = get_string('error');
-            if ($field === 'fullname') {
+            if ($pf->certificationfield === 'fullname') {
                 if (isset($data->certificationfullname)) {
                     $value = $data->certificationfullname;
                     $value = format_string($value, true, ['context' => \context_system::instance()]);
                 }
-            } else if ($field === 'idnumber') {
+            } else if ($pf->certificationfield === 'idnumber') {
                 if (isset($data->certificationidnumber)) {
                     $value = $data->certificationidnumber;
                     $value = s($value);
                 }
-            } else if ($field === 'url') {
+            } else if ($pf->certificationfield === 'url') {
                 if (isset($data->certificationid)) {
                     $url = new \moodle_url('/admin/tool/certify/catalogue/certification.php', ['id' => $data->certificationid]);
                     $value = \html_writer::link($url, $url->out(false));
                 }
-            } else if ($field === 'timecertified') {
-                $value = $this->get_date_format_string($data->certificationtimecertified, $this->dateformat);
-            } else if ($field === 'timefrom') {
-                if (isset($data->certificationtimefrom)) {
-                    $value = $this->get_date_format_string($data->certificationtimefrom, $this->dateformat);
-                } else {
-                    $value = get_string('notset', 'tool_certify');
+            } else if ($pf->certificationfield === 'timecertified') {
+                if (isset($data->certificationtimecertified)) {
+                    $value = $this->format_date($data->certificationtimecertified, $pf->dateformat);
                 }
-            } else if ($field === 'timeuntil') {
-                if (isset($data->certificationtimeuntil)) {
-                    $value = $this->get_date_format_string($data->certificationtimeuntil, $this->dateformat);
-                } else {
-                    $value = get_string('notset', 'tool_certify');
+            } else if ($pf->certificationfield === 'timefrom') {
+                if (isset($data->certificationtimefrom)) {
+                    $value = $this->format_date($data->certificationtimefrom, $pf->dateformat);
+                }
+            } else if ($pf->certificationfield === 'timeuntil') {
+                if (property_exists($data, 'certificationtimeuntil')) {
+                    if ($data->certificationtimeuntil === null) {
+                        $value = get_string('notset', 'tool_certify');
+                    } else {
+                        $value = $this->format_date($data->certificationtimeuntil, $pf->dateformat);
+                    }
                 }
             }
         }
 
         \tool_certificate\element_helper::render_content($pdf, $this, $value);
-    }
-
-    /**
-     * Render the element in html.
-     *
-     * This function is used to render the element when we are using the
-     * drag and drop interface to position it.
-     */
-    public function render_html() {
-        // The value to display - we always want to show a value here so it can be repositioned.
-        $fields = self::get_certification_fields();
-        $value = $fields[$this->get_data()] ?? $this->get_data();
-        $value = $this->prepare_datefield($value);
-        if ($value === 'timecertified') {
-            $value = $this->get_date_format_string(time(), $this->dateformat);
-        } else if ($value === 'timefrom') {
-            $value = $this->get_date_format_string(time() - WEEKSECS, $this->dateformat);
-        } else if ($value === 'timeuntil') {
-            $value = $this->get_date_format_string(time() - YEARSECS, $this->dateformat);
-        }
-        $value = format_string($value, true, ['context' => \context_system::instance()]);
-        return \tool_certificate\element_helper::render_html_content($this, $value);
-    }
-
-    /**
-     * Prepare data to pass to moodleform::set_data()
-     *
-     * @return \stdClass|array
-     */
-    public function prepare_data_for_form() {
-        $record = parent::prepare_data_for_form();
-        if ($this->get_data()) {
-            $record->certificationfield = $this->get_data();
-            $record->certificationfield = self::prepare_datefield($record->certificationfield);
-        }
-        if (isset($this->dateformat)) {
-            $record->dateformat = $this->dateformat;
-        }
-        return $record;
-    }
-
-    /**
-     * Prepare date field for the element - separating the format and the date item.
-     *
-     * @param string $value of the element
-     * @return string
-     */
-    private function prepare_datefield(string $value) {
-        if (strpos($value, 'time') !== false) {
-            $data = json_decode($value);
-            $this->dateformat = $data->dateformat;
-            $value = $data->dateitem;
-        }
-        return $value;
-    }
-
-    /**
-     * Returns the date in a readable format.
-     *
-     * @param int $date
-     * @param string $dateformat
-     * @return string
-     */
-    protected static function get_date_format_string($date, $dateformat) {
-        if ($dateformat == 'strftimedatefullshortwleadingzero') {
-            $certificatedate = userdate($date, get_string('strftimedatefullshort', 'langconfig'), 99, false);
-        } else if (get_string_manager()->string_exists($dateformat, 'langconfig')) {
-            $certificatedate = userdate($date, get_string($dateformat, 'langconfig'));
-        } else {
-            $certificatedate = userdate($date, get_string('strftimedate', 'langconfig'));
-        }
-        return $certificatedate;
     }
 }
