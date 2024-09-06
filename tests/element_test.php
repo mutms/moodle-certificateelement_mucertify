@@ -45,6 +45,34 @@ final class element_test extends \advanced_testcase {
             $this->assertIsString($name);
             $this->assertSame($field, clean_param($field, PARAM_ALPHANUM));
         }
+        $this->assertArrayNotHasKey('customfield', $fields);
+
+        $this->setAdminUser();
+
+        $fieldcategory = $this->getDataGenerator()->create_custom_field_category([
+            'component' => 'tool_certify',
+            'area' => 'fields',
+            'name' => 'Certification custom fields',
+        ]);
+        $field1 = $this->getDataGenerator()->create_custom_field([
+            'shortname' => 'testfield1',
+            'name' => 'Extra text field',
+            'type' => 'text',
+            'categoryid' => $fieldcategory->get('id'),
+        ]);
+        $field2 = $this->getDataGenerator()->create_custom_field([
+            'shortname' => 'testfield2',
+            'name' => 'Extra checkbox field',
+            'type' => 'checkbox',
+            'categoryid' => $fieldcategory->get('id'),
+            'configdata' => ['visibilitymanagers' => true]
+        ]);
+
+        $fields2 = element::get_certification_fields();
+        $this->assertArrayHasKey('customfield', $fields2);
+        $this->assertSame('Custom field', $fields2['customfield']);
+        unset($fields2['customfield']);
+        $this->assertSame($fields, $fields2);
     }
 
     /**
@@ -93,6 +121,11 @@ final class element_test extends \advanced_testcase {
         $result = element::decode_certificationfield_data(json_encode((object)['certificationfield' => 'timecertified', 'dateformat' => 'strftimedatefullshort']));
         $this->assertIsObject($result);
         $this->assertSame(['certificationfield' => 'timecertified', 'dateformat' => 'strftimedatefullshort'], (array)$result);
+
+        $result = element::decode_certificationfield_data(json_encode(
+            (object)['certificationfield' => 'customfield', 'customfieldid' => '111']));
+        $this->assertIsObject($result);
+        $this->assertSame(['certificationfield' => 'customfield', 'customfieldid' => '111'], (array)$result);
 
         $result = element::decode_certificationfield_data(json_encode((object)['certificationfield' => 'timecertified']));
         $this->assertIsObject($result);
@@ -192,6 +225,22 @@ final class element_test extends \advanced_testcase {
         /** @var element $element */
         $element = $generator->create_element($pageid, 'certify', ['name' => 'Do', 'certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate']);
         $this->assertSame(['certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate'], (array)$element->get_certificationfield());
+
+
+        $fieldcategory = $this->getDataGenerator()->create_custom_field_category([
+            'component' => 'tool_certify',
+            'area' => 'fields',
+            'name' => 'Certification custom fields',
+        ]);
+        $field1 = $this->getDataGenerator()->create_custom_field([
+            'shortname' => 'testfield1',
+            'name' => 'Extra text field',
+            'type' => 'text',
+            'categoryid' => $fieldcategory->get('id'),
+        ]);
+        /** @var element $element */
+        $element = $generator->create_element($pageid, 'certify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
+        $this->assertSame(['certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')], (array)$element->get_certificationfield());
     }
 
     /**
@@ -242,6 +291,23 @@ final class element_test extends \advanced_testcase {
         $element = element::instance(0, (object)['pageid' => $pageid, 'element' => 'certify']);
         $result = $element->prepare_data_for_form();
         $this->assertSame(null, $result->certificationfield);
+
+        $fieldcategory = $this->getDataGenerator()->create_custom_field_category([
+            'component' => 'tool_certify',
+            'area' => 'fields',
+            'name' => 'Certification custom fields',
+        ]);
+        $field1 = $this->getDataGenerator()->create_custom_field([
+            'shortname' => 'testfield1',
+            'name' => 'Extra text field',
+            'type' => 'text',
+            'categoryid' => $fieldcategory->get('id'),
+        ]);
+        $element = $generator->create_element($pageid, 'certify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
+        $result = $element->prepare_data_for_form();
+        $this->assertSame('customfield', $result->certificationfield);
+        $this->assertSame($field1->get('id'), $result->customfieldid);
+        $this->assertSame('Some text', $result->name);
     }
 
     /**
@@ -278,6 +344,20 @@ final class element_test extends \advanced_testcase {
         $element = $generator->create_element($pageid, 'certify', ['certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate']);
         $date = userdate(time() + YEARSECS, '%d %B %Y');
         $this->assertStringContainsString($date, $element->render_html());
+
+        $fieldcategory = $this->getDataGenerator()->create_custom_field_category([
+            'component' => 'tool_certify',
+            'area' => 'fields',
+            'name' => 'Certification custom fields',
+        ]);
+        $field1 = $this->getDataGenerator()->create_custom_field([
+            'shortname' => 'testfield1',
+            'name' => 'Extra text field',
+            'type' => 'text',
+            'categoryid' => $fieldcategory->get('id'),
+        ]);
+        $element = $generator->create_element($pageid, 'certify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
+        $this->assertStringContainsString('[Extra text field]', $element->render_html());
     }
 
     /**
@@ -287,8 +367,12 @@ final class element_test extends \advanced_testcase {
         /** @var \tool_certificate_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('tool_certificate');
 
+        /** @var \tool_certify_generator $certificationgenerator */
+        $certificationgenerator = $this->getDataGenerator()->get_plugin_generator('tool_certify');
+
         $this->setAdminUser();
 
+        $certification1 = $certificationgenerator->create_certification();
         $certificate1 = $generator->create_template((object)['name' => 'Certificate 1']);
         $pageid = $generator->create_page($certificate1)->get_id();
         $generator->create_element($pageid, 'certify', ['certificationfield' => 'fullname']);
@@ -306,7 +390,7 @@ final class element_test extends \advanced_testcase {
         // Generate PDF for issue with expiration.
         $user1 = $this->getDataGenerator()->create_user();
         $issuedata = [
-            'certificationid' => '1',
+            'certificationid' => $certification1->id,
             'certificationfullname' => 'Certification 001',
             'certificationidnumber' => 'C001',
             'certificationassignmentid' => '2',
@@ -341,6 +425,46 @@ final class element_test extends \advanced_testcase {
             'certificationfirst' => true,
         ];
         $issue = $generator->issue($certificate1, $user2, null, $issuedata, 'tool_certify');
+        $filecontents = $generator->generate_pdf($certificate1, false, $issue);
+        $filesize = \core_text::strlen($filecontents);
+        $this->assertTrue($filesize > 30000 && $filesize < 90000);
+
+        // Generate PDF with certification custom field.
+        $user2 = $this->getDataGenerator()->create_user();
+        $fieldcategory = $this->getDataGenerator()->create_custom_field_category([
+            'component' => 'tool_certify',
+            'area' => 'fields',
+            'name' => 'Certification custom fields',
+        ]);
+        $field1 = $this->getDataGenerator()->create_custom_field([
+            'shortname' => 'testfield1',
+            'name' => 'Extra text field',
+            'type' => 'text',
+            'categoryid' => $fieldcategory->get('id'),
+        ]);
+        $element = $generator->create_element($pageid, 'certify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
+        $certification2 = $certificationgenerator->create_certification(['customfield_testfield1' => 'abc']);
+        $issuedata = [
+            'certificationid' => $certification2->id,
+            'certificationfullname' => $certification2->fullname,
+            'certificationidnumber' => $certification2->idnumber,
+            'certificationtimecompleted' => time(),
+            'certificationallocationid' => '111',
+        ];
+        $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_certify');
+        $filecontents = $generator->generate_pdf($certificate1, false, $issue);
+        $filesize = \core_text::strlen($filecontents);
+        $this->assertTrue($filesize > 30000 && $filesize < 90000);
+
+        \tool_certify\local\certification::delete_certification($certification2->id);
+        $issuedata = [
+            'certificationid' => $certification2->id,
+            'certificationfullname' => $certification2->fullname,
+            'certificationidnumber' => $certification2->idnumber,
+            'certificationtimecompleted' => time(),
+            'certificationallocationid' => '111',
+        ];
+        $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_certify');
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
         $this->assertTrue($filesize > 30000 && $filesize < 90000);
