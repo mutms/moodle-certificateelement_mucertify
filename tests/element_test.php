@@ -456,6 +456,7 @@ final class element_test extends \advanced_testcase {
         $filesize = \core_text::strlen($filecontents);
         $this->assertTrue($filesize > 30000 && $filesize < 90000);
 
+        // Deleted certification.
         \tool_certify\local\certification::delete_certification($certification2->id);
         $issuedata = [
             'certificationid' => $certification2->id,
@@ -465,6 +466,12 @@ final class element_test extends \advanced_testcase {
             'certificationallocationid' => '111',
         ];
         $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_certify');
+        $filecontents = $generator->generate_pdf($certificate1, false, $issue);
+        $filesize = \core_text::strlen($filecontents);
+        $this->assertTrue($filesize > 30000 && $filesize < 90000);
+
+        // Incorrectly manually generated cert.
+        $issue = $generator->issue($certificate1, $user1);
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
         $this->assertTrue($filesize > 30000 && $filesize < 90000);
