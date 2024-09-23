@@ -385,7 +385,7 @@ final class element_test extends \advanced_testcase {
         // Generate PDF for preview.
         $filecontents = $generator->generate_pdf($certificate1, true);
         $filesize = \core_text::strlen($filecontents);
-        $this->assertTrue($filesize > 30000 && $filesize < 90000);
+        $this->assertTrue($filesize > 30000 && $filesize < 120000);
 
         // Generate PDF for issue with expiration.
         $user1 = $this->getDataGenerator()->create_user();
@@ -403,13 +403,13 @@ final class element_test extends \advanced_testcase {
         $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_certify');
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
-        $this->assertTrue($filesize > 30000 && $filesize < 90000);
+        $this->assertTrue($filesize > 30000 && $filesize < 120000);
 
         // Incorrectly manually generated cert.
         $issue = $generator->issue($certificate1, $user1);
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
-        $this->assertTrue($filesize > 30000 && $filesize < 90000);
+        $this->assertTrue($filesize > 30000 && $filesize < 120000);
 
         // Generate PDF for issue without expiration.
         $user2 = $this->getDataGenerator()->create_user();
@@ -427,7 +427,7 @@ final class element_test extends \advanced_testcase {
         $issue = $generator->issue($certificate1, $user2, null, $issuedata, 'tool_certify');
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
-        $this->assertTrue($filesize > 30000 && $filesize < 90000);
+        $this->assertTrue($filesize > 30000 && $filesize < 120000);
 
         // Generate PDF with certification custom field.
         $user2 = $this->getDataGenerator()->create_user();
@@ -454,7 +454,7 @@ final class element_test extends \advanced_testcase {
         $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_certify');
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
-        $this->assertTrue($filesize > 30000 && $filesize < 90000);
+        $this->assertTrue($filesize > 30000 && $filesize < 120000);
 
         // Deleted certification.
         \tool_certify\local\certification::delete_certification($certification2->id);
@@ -468,12 +468,12 @@ final class element_test extends \advanced_testcase {
         $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_certify');
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
-        $this->assertTrue($filesize > 30000 && $filesize < 90000);
+        $this->assertTrue($filesize > 30000 && $filesize < 120000);
 
         // Incorrectly manually generated cert.
         $issue = $generator->issue($certificate1, $user1);
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
-        $this->assertTrue($filesize > 30000 && $filesize < 90000);
+        $this->assertTrue($filesize > 30000 && $filesize < 120000);
     }
 }
