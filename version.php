@@ -31,7 +31,7 @@ $plugin->version   = 2024091900;
 $plugin->requires  = 2024091700.00; // 4.5.0
 $plugin->component = 'certificateelement_certify';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v4.0.0dev';
+$plugin->release   = 'v4.0.1';
 $plugin->supported = [405, 405];
 
 $plugin->dependencies = [
