@@ -1,31 +1,19 @@
 <?php
-// This file is part of the tool_certificate plugin for Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// Certifications fields plugin for Certificate plugin for Moodle™.
+// phpcs:disable moodle.Files.BoilerplateComment.CommentEndedTooSoon
 
-namespace certificateelement_certify;
+namespace certificateelement_mucertify;
 
 /**
  * The certificate element for certifications fields.
  *
- * @package    certificateelement_certify
+ * @package    certificateelement_mucertify
  * @copyright  2023 Open LMS (https://www.openlms.net/)
  * @author     Petr Skoda
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class element extends \tool_certificate\element {
-    /** @var \core_customfield\field_controller[] cached fields */
+    /** @var string[] */
     private $fields = null;
 
     /**
@@ -35,15 +23,15 @@ final class element extends \tool_certificate\element {
      */
     public static function get_certification_fields(): array {
         $fields = [
-            'fullname' => get_string('certificationname', 'tool_certify'),
-            'idnumber' => get_string('certificationidnumber', 'tool_certify'),
-            'url' => get_string('certificationurl', 'tool_certify'),
-            'timecertified' => get_string('certifieddate', 'tool_certify'),
-            'timefrom' => get_string('fromdate', 'tool_certify'),
-            'timeuntil' => get_string('untildate', 'tool_certify'),
+            'fullname' => get_string('certificationname', 'tool_mucertify'),
+            'idnumber' => get_string('certificationidnumber', 'tool_mucertify'),
+            'url' => get_string('certificationurl', 'tool_mucertify'),
+            'timecertified' => get_string('certifieddate', 'tool_mucertify'),
+            'timefrom' => get_string('fromdate', 'tool_mucertify'),
+            'timeuntil' => get_string('untildate', 'tool_mucertify'),
         ];
 
-        $handler = \tool_certify\customfield\fields_handler::create();
+        $handler = \tool_mucertify\customfield\fields_handler::create();
         if ($handler->get_fields()) {
             $fields['customfield'] = get_string('customfield', 'core_customfield');
         }
@@ -173,7 +161,7 @@ final class element extends \tool_certificate\element {
      */
     public function get_customfields(): array {
         if ($this->fields === null) {
-            $handler = \tool_certify\customfield\fields_handler::create();
+            $handler = \tool_mucertify\customfield\fields_handler::create();
             $this->fields = $handler->get_fields();
         }
         return $this->fields;
@@ -206,11 +194,12 @@ final class element extends \tool_certificate\element {
         $dateformats = self::get_date_formats();
 
         // Create the select box where the user field is selected.
-        $mform->addElement('select', 'certificationfield', get_string('certificationfield', 'certificateelement_certify'), $fields);
-        $mform->addHelpButton('certificationfield', 'certificationfield', 'certificateelement_certify');
+        $mform->addElement('select', 'certificationfield',
+            get_string('certificationfield', 'certificateelement_mucertify'), $fields);
+        $mform->addHelpButton('certificationfield', 'certificationfield', 'certificateelement_mucertify');
 
-        $mform->addElement('select', 'dateformat', get_string('dateformat', 'certificateelement_certify'), $dateformats);
-        $mform->addHelpButton('dateformat', 'dateformat', 'certificateelement_certify');
+        $mform->addElement('select', 'dateformat', get_string('dateformat', 'certificateelement_mucertify'), $dateformats);
+        $mform->addHelpButton('dateformat', 'dateformat', 'certificateelement_mucertify');
 
         $nondates = $fields;
         foreach (self::get_date_fields() as $field) {
@@ -282,7 +271,7 @@ final class element extends \tool_certificate\element {
         } else if ($pf->certificationfield === 'timecertified') {
             $value = $this->format_date(time(), $pf->dateformat);
         } else if ($pf->certificationfield === 'timefrom') {
-            $value = $this->format_date(time()  - WEEKSECS, $pf->dateformat);
+            $value = $this->format_date(time() - WEEKSECS, $pf->dateformat);
         } else if ($pf->certificationfield === 'timeuntil') {
             $value = $this->format_date(time() + YEARSECS, $pf->dateformat);
         } else if ($pf->certificationfield === 'customfield') {
@@ -355,7 +344,7 @@ final class element extends \tool_certificate\element {
             } else if ($pf->certificationfield === 'timeuntil') {
                 if (property_exists($data, 'certificationtimeuntil')) {
                     if ($data->certificationtimeuntil === null) {
-                        $value = get_string('notset', 'tool_certify');
+                        $value = get_string('notset', 'tool_mucertify');
                     } else {
                         $value = $this->format_date($data->certificationtimeuntil, $pf->dateformat);
                     }

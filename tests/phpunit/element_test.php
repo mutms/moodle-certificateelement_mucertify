@@ -1,31 +1,23 @@
 <?php
-// This file is part of the tool_certificate plugin for Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// Certifications fields plugin for Certificate plugin for Moodle™.
+// phpcs:disable moodle.Files.BoilerplateComment.CommentEndedTooSoon
+// phpcs:disable moodle.Files.LineLength.TooLong
+// phpcs:disable moodle.Commenting.DocblockDescription.Missing
 
-namespace certificateelement_certify;
+namespace certificateelement_mucertify\phpunit;
+
+use certificateelement_mucertify\element;
 
 /**
  * Unit tests for certify element.
  *
- * @group     openlms
- * @package   certificateelement_certify
- * @copyright 2023 Open LMS (https://www.openlms.net/)
- * @author    Petr Skoda
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @group      openlms
+ * @package    certificateelement_mucertify
+ * @copyright  2023 Open LMS (https://www.openlms.net/)
+ * @author     Petr Skoda
+ * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
- * @coversDefaultClass \certificateelement_certify\element
+ * @coversDefaultClass \certificateelement_mucertify\element
  */
 final class element_test extends \advanced_testcase {
     /**
@@ -50,7 +42,7 @@ final class element_test extends \advanced_testcase {
         $this->setAdminUser();
 
         $fieldcategory = $this->getDataGenerator()->create_custom_field_category([
-            'component' => 'tool_certify',
+            'component' => 'tool_mucertify',
             'area' => 'fields',
             'name' => 'Certification custom fields',
         ]);
@@ -65,7 +57,7 @@ final class element_test extends \advanced_testcase {
             'name' => 'Extra checkbox field',
             'type' => 'checkbox',
             'categoryid' => $fieldcategory->get('id'),
-            'configdata' => ['visibilitymanagers' => true]
+            'configdata' => ['visibilitymanagers' => true],
         ]);
 
         $fields2 = element::get_certification_fields();
@@ -203,32 +195,31 @@ final class element_test extends \advanced_testcase {
         $pageid = $generator->create_page($certificate1)->get_id();
 
         /** @var element $element */
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Nazev', 'certificationfield' => 'fullname']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Nazev', 'certificationfield' => 'fullname']);
         $this->assertSame(['certificationfield' => 'fullname'], (array)$element->get_certificationfield());
 
         /** @var element $element */
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'ID certifikace', 'certificationfield' => 'idnumber']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'ID certifikace', 'certificationfield' => 'idnumber']);
         $this->assertSame(['certificationfield' => 'idnumber'], (array)$element->get_certificationfield());
 
         /** @var element $element */
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Odkaz', 'certificationfield' => 'url']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Odkaz', 'certificationfield' => 'url']);
         $this->assertSame(['certificationfield' => 'url'], (array)$element->get_certificationfield());
 
         /** @var element $element */
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Dokonceno', 'certificationfield' => 'timecertified', 'dateformat' => 'strftimedate']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Dokonceno', 'certificationfield' => 'timecertified', 'dateformat' => 'strftimedate']);
         $this->assertSame(['certificationfield' => 'timecertified', 'dateformat' => 'strftimedate'], (array)$element->get_certificationfield());
 
         /** @var element $element */
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Od', 'certificationfield' => 'timefrom', 'dateformat' => 'strftimedate']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Od', 'certificationfield' => 'timefrom', 'dateformat' => 'strftimedate']);
         $this->assertSame(['certificationfield' => 'timefrom', 'dateformat' => 'strftimedate'], (array)$element->get_certificationfield());
 
         /** @var element $element */
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Do', 'certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Do', 'certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate']);
         $this->assertSame(['certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate'], (array)$element->get_certificationfield());
 
-
         $fieldcategory = $this->getDataGenerator()->create_custom_field_category([
-            'component' => 'tool_certify',
+            'component' => 'tool_mucertify',
             'area' => 'fields',
             'name' => 'Certification custom fields',
         ]);
@@ -239,7 +230,7 @@ final class element_test extends \advanced_testcase {
             'categoryid' => $fieldcategory->get('id'),
         ]);
         /** @var element $element */
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
         $this->assertSame(['certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')], (array)$element->get_certificationfield());
     }
 
@@ -255,45 +246,45 @@ final class element_test extends \advanced_testcase {
         $certificate1 = $generator->create_template((object)['name' => 'Certificate 1']);
         $pageid = $generator->create_page($certificate1)->get_id();
 
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Nazev', 'certificationfield' => 'fullname']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Nazev', 'certificationfield' => 'fullname']);
         $result = $element->prepare_data_for_form();
         $this->assertSame('fullname', $result->certificationfield);
         $this->assertSame('Nazev', $result->name);
 
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'ID certifikace', 'certificationfield' => 'idnumber']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'ID certifikace', 'certificationfield' => 'idnumber']);
         $result = $element->prepare_data_for_form();
         $this->assertSame('idnumber', $result->certificationfield);
         $this->assertSame('ID certifikace', $result->name);
 
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Odkaz', 'certificationfield' => 'url']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Odkaz', 'certificationfield' => 'url']);
         $result = $element->prepare_data_for_form();
         $this->assertSame('url', $result->certificationfield);
         $this->assertSame('Odkaz', $result->name);
 
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Dokonceno', 'certificationfield' => 'timecertified', 'dateformat' => 'strftimedate']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Dokonceno', 'certificationfield' => 'timecertified', 'dateformat' => 'strftimedate']);
         $result = $element->prepare_data_for_form();
         $this->assertSame('timecertified', $result->certificationfield);
         $this->assertSame('strftimedate', $result->dateformat);
         $this->assertSame('Dokonceno', $result->name);
 
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Od', 'certificationfield' => 'timefrom', 'dateformat' => 'strftimedate']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Od', 'certificationfield' => 'timefrom', 'dateformat' => 'strftimedate']);
         $result = $element->prepare_data_for_form();
         $this->assertSame('timefrom', $result->certificationfield);
         $this->assertSame('strftimedate', $result->dateformat);
         $this->assertSame('Od', $result->name);
 
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Do', 'certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate']);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Do', 'certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate']);
         $result = $element->prepare_data_for_form();
         $this->assertSame('timeuntil', $result->certificationfield);
         $this->assertSame('strftimedate', $result->dateformat);
         $this->assertSame('Do', $result->name);
 
-        $element = element::instance(0, (object)['pageid' => $pageid, 'element' => 'certify']);
+        $element = element::instance(0, (object)['pageid' => $pageid, 'element' => 'mucertify']);
         $result = $element->prepare_data_for_form();
         $this->assertSame(null, $result->certificationfield);
 
         $fieldcategory = $this->getDataGenerator()->create_custom_field_category([
-            'component' => 'tool_certify',
+            'component' => 'tool_mucertify',
             'area' => 'fields',
             'name' => 'Certification custom fields',
         ]);
@@ -303,7 +294,7 @@ final class element_test extends \advanced_testcase {
             'type' => 'text',
             'categoryid' => $fieldcategory->get('id'),
         ]);
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
         $result = $element->prepare_data_for_form();
         $this->assertSame('customfield', $result->certificationfield);
         $this->assertSame($field1->get('id'), $result->customfieldid);
@@ -323,30 +314,30 @@ final class element_test extends \advanced_testcase {
         $certificate1 = $generator->create_template((object)['name' => 'Certificate 1']);
         $pageid = $generator->create_page($certificate1)->get_id();
 
-        $element = $generator->create_element($pageid, 'certify', ['certificationfield' => 'fullname']);
+        $element = $generator->create_element($pageid, 'mucertify', ['certificationfield' => 'fullname']);
         $this->assertStringContainsString('Certification 001', $element->render_html());
 
         $formdata = (object)['name' => 'Certification id', 'certificationfield' => 'idnumber'];
-        $element = $generator->create_element($pageid, 'certify', $formdata);
+        $element = $generator->create_element($pageid, 'mucertify', $formdata);
         $this->assertStringContainsString('C001', $element->render_html());
 
-        $element = $generator->create_element($pageid, 'certify', ['certificationfield' => 'url']);
+        $element = $generator->create_element($pageid, 'mucertify', ['certificationfield' => 'url']);
         $this->assertStringContainsString('https://www.example.com/moodle/admin/tool/certify/catalogue/certification?id=1', $element->render_html());
 
-        $element = $generator->create_element($pageid, 'certify', ['certificationfield' => 'timecertified', 'dateformat' => 'strftimedate']);
+        $element = $generator->create_element($pageid, 'mucertify', ['certificationfield' => 'timecertified', 'dateformat' => 'strftimedate']);
         $date = userdate(time(), '%d %B %Y');
         $this->assertStringContainsString($date, $element->render_html());
 
-        $element = $generator->create_element($pageid, 'certify', ['certificationfield' => 'timefrom', 'dateformat' => 'strftimedate']);
+        $element = $generator->create_element($pageid, 'mucertify', ['certificationfield' => 'timefrom', 'dateformat' => 'strftimedate']);
         $date = userdate(time() - WEEKSECS, '%d %B %Y');
         $this->assertStringContainsString($date, $element->render_html());
 
-        $element = $generator->create_element($pageid, 'certify', ['certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate']);
+        $element = $generator->create_element($pageid, 'mucertify', ['certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate']);
         $date = userdate(time() + YEARSECS, '%d %B %Y');
         $this->assertStringContainsString($date, $element->render_html());
 
         $fieldcategory = $this->getDataGenerator()->create_custom_field_category([
-            'component' => 'tool_certify',
+            'component' => 'tool_mucertify',
             'area' => 'fields',
             'name' => 'Certification custom fields',
         ]);
@@ -356,7 +347,7 @@ final class element_test extends \advanced_testcase {
             'type' => 'text',
             'categoryid' => $fieldcategory->get('id'),
         ]);
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
         $this->assertStringContainsString('[Extra text field]', $element->render_html());
     }
 
@@ -367,20 +358,20 @@ final class element_test extends \advanced_testcase {
         /** @var \tool_certificate_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('tool_certificate');
 
-        /** @var \tool_certify_generator $certificationgenerator */
-        $certificationgenerator = $this->getDataGenerator()->get_plugin_generator('tool_certify');
+        /** @var \tool_mucertify_generator $certificationgenerator */
+        $certificationgenerator = $this->getDataGenerator()->get_plugin_generator('tool_mucertify');
 
         $this->setAdminUser();
 
         $certification1 = $certificationgenerator->create_certification();
         $certificate1 = $generator->create_template((object)['name' => 'Certificate 1']);
         $pageid = $generator->create_page($certificate1)->get_id();
-        $generator->create_element($pageid, 'certify', ['certificationfield' => 'fullname']);
-        $generator->create_element($pageid, 'certify', ['name' => 'Certification id', 'certificationfield' => 'idnumber']);
-        $generator->create_element($pageid, 'certify', ['certificationfield' => 'url']);
-        $generator->create_element($pageid, 'certify', ['certificationfield' => 'timecertified', 'dateformat' => 'strftimedate']);
-        $generator->create_element($pageid, 'certify', ['certificationfield' => 'timefrom', 'dateformat' => 'strftimedate']);
-        $generator->create_element($pageid, 'certify', ['certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate']);
+        $generator->create_element($pageid, 'mucertify', ['certificationfield' => 'fullname']);
+        $generator->create_element($pageid, 'mucertify', ['name' => 'Certification id', 'certificationfield' => 'idnumber']);
+        $generator->create_element($pageid, 'mucertify', ['certificationfield' => 'url']);
+        $generator->create_element($pageid, 'mucertify', ['certificationfield' => 'timecertified', 'dateformat' => 'strftimedate']);
+        $generator->create_element($pageid, 'mucertify', ['certificationfield' => 'timefrom', 'dateformat' => 'strftimedate']);
+        $generator->create_element($pageid, 'mucertify', ['certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate']);
 
         // Generate PDF for preview.
         $filecontents = $generator->generate_pdf($certificate1, true);
@@ -400,7 +391,7 @@ final class element_test extends \advanced_testcase {
             'certificationtimeuntil' => time() + YEARSECS,
             'certificationfirst' => true,
         ];
-        $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_certify');
+        $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_mucertify');
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
         $this->assertTrue($filesize > 30000 && $filesize < 120000);
@@ -424,7 +415,7 @@ final class element_test extends \advanced_testcase {
             'certificationtimeuntil' => null,
             'certificationfirst' => true,
         ];
-        $issue = $generator->issue($certificate1, $user2, null, $issuedata, 'tool_certify');
+        $issue = $generator->issue($certificate1, $user2, null, $issuedata, 'tool_mucertify');
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
         $this->assertTrue($filesize > 30000 && $filesize < 120000);
@@ -432,7 +423,7 @@ final class element_test extends \advanced_testcase {
         // Generate PDF with certification custom field.
         $user2 = $this->getDataGenerator()->create_user();
         $fieldcategory = $this->getDataGenerator()->create_custom_field_category([
-            'component' => 'tool_certify',
+            'component' => 'tool_mucertify',
             'area' => 'fields',
             'name' => 'Certification custom fields',
         ]);
@@ -442,7 +433,7 @@ final class element_test extends \advanced_testcase {
             'type' => 'text',
             'categoryid' => $fieldcategory->get('id'),
         ]);
-        $element = $generator->create_element($pageid, 'certify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
+        $element = $generator->create_element($pageid, 'mucertify', ['name' => 'Some text', 'certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')]);
         $certification2 = $certificationgenerator->create_certification(['customfield_testfield1' => 'abc']);
         $issuedata = [
             'certificationid' => $certification2->id,
@@ -451,13 +442,13 @@ final class element_test extends \advanced_testcase {
             'certificationtimecompleted' => time(),
             'certificationallocationid' => '111',
         ];
-        $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_certify');
+        $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_mucertify');
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
         $this->assertTrue($filesize > 30000 && $filesize < 120000);
 
         // Deleted certification.
-        \tool_certify\local\certification::delete_certification($certification2->id);
+        \tool_mucertify\local\certification::delete_certification($certification2->id);
         $issuedata = [
             'certificationid' => $certification2->id,
             'certificationfullname' => $certification2->fullname,
@@ -465,7 +456,7 @@ final class element_test extends \advanced_testcase {
             'certificationtimecompleted' => time(),
             'certificationallocationid' => '111',
         ];
-        $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_certify');
+        $issue = $generator->issue($certificate1, $user1, null, $issuedata, 'tool_mucertify');
         $filecontents = $generator->generate_pdf($certificate1, false, $issue);
         $filesize = \core_text::strlen($filecontents);
         $this->assertTrue($filesize > 30000 && $filesize < 120000);
