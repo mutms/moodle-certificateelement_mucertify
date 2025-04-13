@@ -25,14 +25,14 @@ Feature: Being able to manage certification elements in a certificate template
       | Certification field | Certification name     |
     And I set the following fields to these values:
       | Element name        | ID certification       |
-      | Certification field | Certification idnumber |
+      | Certification field | Certification ID       |
     And I click on "Save" "button" in the ".modal.show .modal-footer" "css_element"
     Then I should see "ID certification" in the "[data-region='elementlist']" "css_element"
 
     When I click on "Edit 'ID certification'" "link" in the "[data-region='elementlist']" "css_element"
     And the following fields match these values:
       | Element name        | ID certification       |
-      | Certification field | Certification idnumber |
+      | Certification field | Certification ID       |
     And I click on "Cancel" "button" in the ".modal.show .modal-footer" "css_element"
     Then I should see "ID certification" in the "[data-region='elementlist']" "css_element"
 
