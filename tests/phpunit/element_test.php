@@ -462,7 +462,7 @@ final class element_test extends \advanced_testcase {
         $this->assertTrue($filesize > 30000 && $filesize < 120000);
 
         // Deleted certification.
-        \tool_mucertify\local\certification::delete_certification($certification2->id);
+        \tool_mucertify\local\certification::delete($certification2->id);
         $issuedata = [
             'certificationid' => $certification2->id,
             'certificationfullname' => $certification2->fullname,
