@@ -1,4 +1,4 @@
-@tool @tool_certificate @certificateelement @certificateelement_mucertify @muTMS @javascript @tool_mucertify
+@tool @tool_certificate @certificateelement @certificateelement_mucertify @MuTMS @javascript @tool_mucertify
 Feature: Being able to manage certification elements in a certificate template
 
   Background:
