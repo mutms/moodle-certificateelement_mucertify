@@ -26,6 +26,7 @@ jobs:
           - php: '8.3'
             moodle-branch: 'MOODLE_405_STABLE'
             db: pgsql
+            dbversion: 18
 
     steps:
       - name: Check out repository code
