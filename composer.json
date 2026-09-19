@@ -6,7 +6,7 @@
   "license": "GPL-3.0-or-later",
   "require": {
     "moodle/composer-installer": "*",
-    "moodle/moodle": "5.1.*||5.2.*",
+    "moodle/moodle": "5.3.*",
     "moodleworkplace/moodle-tool_certificate": "*",
     "mutms/moodle-tool_mucertify": "*"
   },
