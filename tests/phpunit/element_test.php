@@ -25,7 +25,7 @@ use certificateelement_mucertify\element;
 /**
  * Unit tests for certify element.
  *
- * @group      openlms
+ * @group      MuTMS
  * @package    certificateelement_mucertify
  * @copyright  2023 Open LMS (https://www.openlms.net/)
  * @author     Petr Skoda
