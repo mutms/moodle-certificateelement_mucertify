@@ -28,13 +28,13 @@ defined('MOODLE_INTERNAL') || die();
 
 /** @var stdClass $plugin */
 $plugin->component = 'certificateelement_mucertify';
-$plugin->version = 2026092753;
+$plugin->version = 2026100553;
 $plugin->requires = 2026091600;
 $plugin->supported = [503, 503];
 
 $plugin->release = 'v5.3.0.00';
 
 $plugin->dependencies = [
-    'tool_mucertify' => 2026092753,
+    'tool_mucertify' => 2026100553,
     'tool_certificate' => 2026081100,
 ];

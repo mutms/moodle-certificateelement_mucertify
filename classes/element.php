@@ -282,7 +282,7 @@ final class element extends \tool_certificate\element {
         } else if ($pf->certificationfield === 'idnumber') {
             $value = 'C001';
         } else if ($pf->certificationfield === 'url') {
-            $url = new \moodle_url('/admin/tool/mucertify/catalogue/certification', ['id' => 1]);
+            $url = new \moodle_url('/admin/tool/mucertify/my/certification.php', ['id' => 1]);
             $value = \html_writer::link($url, $url->out(false));
         } else if ($pf->certificationfield === 'timecertified') {
             $value = $this->format_date(time(), $pf->dateformat);
@@ -346,7 +346,7 @@ final class element extends \tool_certificate\element {
                 }
             } else if ($pf->certificationfield === 'url') {
                 if (isset($data->certificationid)) {
-                    $url = new \moodle_url('/admin/tool/mucertify/catalogue/certification.php', ['id' => $data->certificationid]);
+                    $url = new \moodle_url('/admin/tool/mucertify/my/certification.php', ['id' => $data->certificationid]);
                     $value = \html_writer::link($url, $url->out(false));
                 }
             } else if ($pf->certificationfield === 'timecertified') {
