@@ -21,18 +21,19 @@
 namespace certificateelement_mucertify\phpunit;
 
 use certificateelement_mucertify\element;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Unit tests for certify element.
  *
- * @group      MuTMS
  * @package    certificateelement_mucertify
  * @copyright  2023 Open LMS (https://www.openlms.net/)
  * @author     Petr Skoda
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- *
- * @coversDefaultClass \certificateelement_mucertify\element
  */
+#[CoversClass(\certificateelement_mucertify\element::class)]
+#[Group('MuTMS')]
 final class element_test extends \advanced_testcase {
     /**
      * Test set up.
@@ -42,9 +43,6 @@ final class element_test extends \advanced_testcase {
         $this->resetAfterTest();
     }
 
-    /**
-     * @covers ::get_certification_fields
-     */
     public function test_get_certification_fields(): void {
         $fields = element::get_certification_fields();
         foreach ($fields as $field => $name) {
@@ -81,17 +79,11 @@ final class element_test extends \advanced_testcase {
         $this->assertSame($fields, $fields2);
     }
 
-    /**
-     * @covers ::get_date_fields
-     */
     public function test_get_date_fields(): void {
         $fields = element::get_date_fields();
         $this->assertSame(['timecertified', 'timefrom', 'timeuntil'], $fields);
     }
 
-    /**
-     * @covers ::get_date_formats
-     */
     public function test_get_date_formats(): void {
         $formats = element::get_date_formats();
         foreach ($formats as $format => $example) {
@@ -100,9 +92,6 @@ final class element_test extends \advanced_testcase {
         }
     }
 
-    /**
-     * @covers ::format_date
-     */
     public function test_format_date(): void {
         $now = time();
         $formats = element::get_date_formats();
@@ -112,9 +101,6 @@ final class element_test extends \advanced_testcase {
         }
     }
 
-    /**
-     * @covers ::decode_certificationfield_data
-     */
     public function test_decode_certificationfield_data(): void {
         $result = element::decode_certificationfield_data(json_encode((object)['certificationfield' => 'fullname']));
         $this->assertIsObject($result);
@@ -197,9 +183,6 @@ final class element_test extends \advanced_testcase {
         $this->assertSame(['certificationfield' => 'timeuntil', 'dateformat' => 'strftimedate'], (array)$result);
     }
 
-    /**
-     * @covers ::get_certificationfield
-     */
     public function test_get_certificationfield(): void {
         /** @var \tool_certificate_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('tool_certificate');
@@ -249,9 +232,6 @@ final class element_test extends \advanced_testcase {
         $this->assertSame(['certificationfield' => 'customfield', 'customfieldid' => $field1->get('id')], (array)$element->get_certificationfield());
     }
 
-    /**
-     * @covers ::prepare_data_for_form
-     */
     public function test_prepare_data_for_form(): void {
         /** @var \tool_certificate_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('tool_certificate');
@@ -316,10 +296,6 @@ final class element_test extends \advanced_testcase {
         $this->assertSame('Some text', $result->name);
     }
 
-    /**
-     * @covers ::render_html
-     * @covers ::get_preview
-     */
     public function test_render_html(): void {
         /** @var \tool_certificate_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('tool_certificate');
@@ -366,9 +342,6 @@ final class element_test extends \advanced_testcase {
         $this->assertStringContainsString('[Extra text field]', $element->render_html());
     }
 
-    /**
-     * @covers ::render
-     */
     public function test_render(): void {
         /** @var \tool_certificate_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('tool_certificate');
